@@ -8,15 +8,56 @@ urlCtrl.getUrl = async (req, res) => {
   const id = req.params.id;
 
   try {
+    const url = await Url.findById(id).populate(
+      "ownerUsers",
+      "-password -urls"
+    );
+
+    if (!url) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Url not found",
+      });
+    }
+
+    return res.json(url);
+  } catch (error) {
+    res.status(404).json({
+      ok: false,
+      msg: "Url not found",
+    });
+  }
+};
+
+urlCtrl.goUrl = async (req, res) => {
+  const id = req.params.id;
+
+  try {
     const url = await Url.findById(id);
 
-    if (validUrl.isUri(url.longUrl)) {
-      return res.json(url);
+    if (!url) {
+      return res.status(404).json({
+        ok: false,
+        msg: "Url not found",
+      });
+    }
+
+    url.clicks++;
+    if (url.clicks > 500) {
+      await url.remove();
+      return res.status(404).json({
+        ok: false,
+        msg: "Url not found",
+      });
     } else {
-      res.status(400).json({ message: "Invalid URL" });
+      await url.save();
+      return res.redirect(url.longUrl);
     }
   } catch (error) {
-    res.status(404).json({ message: "Url not found" });
+    res.status(404).json({
+      ok: false,
+      msg: "Url not found",
+    });
   }
 };
 
@@ -24,17 +65,26 @@ urlCtrl.postUrl = async (req, res) => {
   const { longUrl } = req.body;
 
   if (!validUrl.isUri(longUrl)) {
-    return res.status(400).json({ message: "Invalid URL" });
+    return res.status(400).json({
+      ok: false,
+      message: "Invalid URL",
+    });
   }
 
   try {
-    const url = await Url.findOne({ longUrl });
+    const url = await Url.findOne({ longUrl }).populate(
+      "ownerUsers",
+      "-password -urls"
+    );
     const user = await User.findById(req.userId)
       .select("-password")
       .populate("urls");
 
     if (url) {
-      if (user.urls.some((e) => e.id === url._id)) {
+      if (
+        user.urls.some((e) => e._id === url._id) ||
+        url.ownerUsers.some((e) => user._id.equals(e._id))
+      ) {
         return res.status(400).json({
           ok: false,
           msg: "Url already saved",
@@ -42,6 +92,8 @@ urlCtrl.postUrl = async (req, res) => {
       } else {
         user.urls.push(url._id);
         await user.save();
+        url.ownerUsers.push(user._id);
+        await url.save();
         return res.json({ ok: true, url });
       }
     }
@@ -50,12 +102,63 @@ urlCtrl.postUrl = async (req, res) => {
       longUrl,
     });
 
+    newUrl.ownerUsers.push(user._id);
+
     await newUrl.save();
 
     user.urls.push(newUrl._id);
     await user.save();
 
     res.json({ ok: true, url: newUrl });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+urlCtrl.deleteUrl = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const url = await Url.findById(id).populate(
+      "ownerUsers",
+      "-password -urls"
+    );
+
+    if (!url) {
+      return res.status(404).json({
+        ok: false,
+        msg: "Url not found",
+      });
+    }
+
+    const user = await User.findById(req.userId)
+      .select("-password")
+      .populate("urls");
+
+    if (
+      !user.urls.some((e) => e._id === url._id) &&
+      !url.ownerUsers.some((e) => e._id.equals(user._id))
+    ) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Url not found",
+      });
+    }
+
+    user.urls = user.urls.filter((e) => e._id !== url._id);
+
+    url.ownerUsers = url.ownerUsers.filter((e) => !e._id.equals(user._id));
+
+    if (url.ownerUsers.length === 0) {
+      await url.remove();
+    } else {
+      await url.save();
+    }
+
+    await user.save();
+
+    res.json({ ok: true, msg: "Url deleted" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error" });
