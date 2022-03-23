@@ -8,7 +8,7 @@ Install dependencies
 
 `npm install`
 
-Enviorements.
+Environments.
 
 ```
 MONGO_URI = mongodb://localhost
