@@ -1,11 +1,15 @@
 const { model, Schema, Types } = require("mongoose");
 const shortid = require("shortid");
 
+const idGenerator = () => {
+  return shortid.generate();
+};
+
 const urlSchema = new Schema(
   {
     _id: {
       type: String,
-      default: shortid.generate(),
+      default: idGenerator,
     },
     longUrl: {
       type: String,
