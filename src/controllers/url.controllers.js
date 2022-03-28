@@ -51,7 +51,7 @@ urlCtrl.goUrl = async (req, res) => {
       });
     } else {
       await url.save();
-      return res.redirect(url.longUrl);
+      return res.json({ url: url.longUrl });
     }
   } catch (error) {
     res.status(404).json({
@@ -67,7 +67,7 @@ urlCtrl.postUrl = async (req, res) => {
   if (!validUrl.isUri(longUrl)) {
     return res.status(400).json({
       ok: false,
-      message: "Invalid URL",
+      msg: "Invalid URL",
     });
   }
 
@@ -88,6 +88,7 @@ urlCtrl.postUrl = async (req, res) => {
         return res.status(400).json({
           ok: false,
           msg: "Url already saved",
+          id: url._id,
         });
       } else {
         user.urls.push(url._id);
@@ -112,7 +113,7 @@ urlCtrl.postUrl = async (req, res) => {
     res.json({ ok: true, url: newUrl });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -161,7 +162,7 @@ urlCtrl.deleteUrl = async (req, res) => {
     res.json({ ok: true, msg: "Url deleted" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ msg: "Server error" });
   }
 };
 
