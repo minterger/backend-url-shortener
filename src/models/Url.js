@@ -16,11 +16,6 @@ const urlSchema = new Schema(
       required: true,
       trim: true,
     },
-    shortUrl: {
-      type: String,
-      unique: true,
-      trim: true,
-    },
     clicks: {
       type: Number,
       default: 0,
@@ -37,9 +32,9 @@ const urlSchema = new Schema(
   }
 );
 
-urlSchema.pre("save", function (next) {
-  this.shortUrl = process.env.BASE_URL + "/" + this._id;
-  next();
-});
+// urlSchema.pre("save", function (next) {
+//   this.shortUrl = process.env.BASE_URL + "/" + this._id;
+//   next();
+// });
 
 module.exports = model("Url", urlSchema);
