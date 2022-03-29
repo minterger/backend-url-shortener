@@ -92,7 +92,7 @@ authCtrl.getUser = async (req, res) => {
   const id = req.userId;
 
   try {
-    const user = await User.findById(id).select("-password").populate("urls");
+    const user = await User.findById(id).select("-password -urls");
 
     if (!user) {
       return res.status(400).json({

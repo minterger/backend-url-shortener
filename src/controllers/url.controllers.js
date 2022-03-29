@@ -29,6 +29,37 @@ urlCtrl.getUrl = async (req, res) => {
   }
 };
 
+urlCtrl.getAllUserUrls = async (req, res) => {
+  const userId = req.userId;
+
+  try {
+    // buscar en modelo Url todas las urls del usuario logueado segun su id dentro de owenerUsers
+    const urls = await Url.find({ ownerUsers: userId }).populate(
+      "ownerUsers",
+      "-password -urls"
+    );
+
+    if (!urls) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Urls not found",
+      });
+    }
+
+    console.log(urls);
+
+    return res.json({
+      ok: true,
+      urls,
+    });
+  } catch (error) {
+    res.status(404).json({
+      ok: false,
+      msg: "Urls not found",
+    });
+  }
+};
+
 urlCtrl.goUrl = async (req, res) => {
   const id = req.params.id;
 
