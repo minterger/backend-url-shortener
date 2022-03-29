@@ -34,10 +34,9 @@ urlCtrl.getAllUserUrls = async (req, res) => {
 
   try {
     // buscar en modelo Url todas las urls del usuario logueado segun su id dentro de owenerUsers
-    const urls = await Url.find({ ownerUsers: userId }).populate(
-      "ownerUsers",
-      "-password -urls"
-    );
+    const urls = await Url.find({ ownerUsers: userId })
+      .populate("ownerUsers", "-password -urls")
+      .sort({ createdAt: -1 });
 
     if (!urls) {
       return res.status(400).json({
@@ -45,8 +44,6 @@ urlCtrl.getAllUserUrls = async (req, res) => {
         msg: "Urls not found",
       });
     }
-
-    console.log(urls);
 
     return res.json({
       ok: true,
