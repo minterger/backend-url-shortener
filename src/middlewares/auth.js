@@ -10,11 +10,18 @@ const isAuth = (req, res, next) => {
     });
   }
 
-  const { id } = jwt.verify(token, process.env.SECRET_KEY);
+  try {
+    const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
-  req.userId = id;
+    req.userId = id;
 
-  next();
+    next();
+  } catch (error) {
+    res.status(401).json({
+      ok: false,
+      msg: "Session expired",
+    });
+  }
 };
 
 module.exports = {
