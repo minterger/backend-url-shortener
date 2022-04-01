@@ -19,7 +19,6 @@ const isAuth = (req, res, next) => {
   } catch (error) {
     res.status(401).json({
       ok: false,
-      msg: "Session expired",
     });
   }
 };
