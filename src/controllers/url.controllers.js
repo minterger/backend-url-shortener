@@ -120,9 +120,10 @@ urlCtrl.postUrl = async (req, res) => {
         });
       } else {
         user.urls.push(url._id);
-        await user.save();
         url.ownerUsers.push(user._id);
-        await url.save();
+
+        Promise.all([user.save(), url.save()]);
+
         return res.json({ ok: true, url });
       }
     }
@@ -132,11 +133,9 @@ urlCtrl.postUrl = async (req, res) => {
     });
 
     newUrl.ownerUsers.push(user._id);
-
-    await newUrl.save();
-
     user.urls.push(newUrl._id);
-    await user.save();
+
+    Promise.all([newUrl.save(), user.save()]);
 
     res.json({ ok: true, url: newUrl });
   } catch (error) {
@@ -180,12 +179,10 @@ urlCtrl.deleteUrl = async (req, res) => {
     url.ownerUsers = url.ownerUsers.filter((e) => !e._id.equals(user._id));
 
     if (url.ownerUsers.length === 0) {
-      await url.remove();
+      Promise.all([url.remove(), user.save()]);
     } else {
-      await url.save();
+      Promise.all([url.save(), user.save()]);
     }
-
-    await user.save();
 
     res.json({ ok: true, msg: "Url deleted" });
   } catch (error) {
