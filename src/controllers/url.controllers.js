@@ -111,6 +111,13 @@ urlCtrl.postUrl = async (req, res) => {
 
     let id = customId && user.premium ? customId : null;
 
+    if (id && !!id.match(/[/ &$#"'`.\\]/g)) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Invalid custom path",
+      });
+    }
+
     if (url && !id) {
       if (
         user.urls.some((e) => e._id === url._id) ||
