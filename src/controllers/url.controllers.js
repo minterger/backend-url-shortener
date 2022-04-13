@@ -104,6 +104,7 @@ urlCtrl.postUrl = async (req, res) => {
       "ownerUsers",
       "-password -urls"
     );
+
     const user = await User.findById(req.userId)
       .select("-password")
       .populate("urls");
@@ -135,6 +136,15 @@ urlCtrl.postUrl = async (req, res) => {
     });
 
     if (id) {
+      const urlId = await Url.findById(id);
+
+      if (urlId) {
+        return res.status(400).json({
+          ok: false,
+          msg: "Custom path already exists",
+        });
+      }
+
       newUrl._id = id;
     }
 
