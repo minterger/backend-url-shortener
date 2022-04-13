@@ -28,9 +28,4 @@ const urlSchema = new Schema(
   }
 );
 
-// urlSchema.pre("save", function (next) {
-//   this.shortUrl = process.env.BASE_URL + "/" + this._id;
-//   next();
-// });
-
 module.exports = model("Url", urlSchema);

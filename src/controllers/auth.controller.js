@@ -111,4 +111,31 @@ authCtrl.getUser = async (req, res) => {
   }
 };
 
+authCtrl.userToPremium = async (req, res) => {
+  const id = req.userId;
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(400).json({
+        ok: false,
+        msg: "User not found",
+      });
+    }
+
+    user.premium = true;
+
+    await user.save();
+
+    res.json({
+      ok: true,
+      msg: "User upgraded to premium",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = authCtrl;

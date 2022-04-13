@@ -13,6 +13,10 @@ const userSchema = new Schema({
     required: true,
     trim: true,
   },
+  premium: {
+    type: Boolean,
+    default: false,
+  },
   urls: [
     {
       type: String,

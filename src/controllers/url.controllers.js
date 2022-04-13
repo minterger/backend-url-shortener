@@ -90,7 +90,7 @@ urlCtrl.goUrl = async (req, res) => {
 };
 
 urlCtrl.postUrl = async (req, res) => {
-  const { longUrl } = req.body;
+  const { longUrl, customId } = req.body;
 
   if (!validUrl.isUri(longUrl)) {
     return res.status(400).json({
@@ -108,7 +108,9 @@ urlCtrl.postUrl = async (req, res) => {
       .select("-password")
       .populate("urls");
 
-    if (url) {
+    let id = customId && user.premium ? customId : null;
+
+    if (url && !id) {
       if (
         user.urls.some((e) => e._id === url._id) ||
         url.ownerUsers.some((e) => user._id.equals(e._id))
@@ -131,6 +133,10 @@ urlCtrl.postUrl = async (req, res) => {
     const newUrl = new Url({
       longUrl,
     });
+
+    if (id) {
+      newUrl._id = id;
+    }
 
     newUrl.ownerUsers.push(user._id);
     user.urls.push(newUrl._id);

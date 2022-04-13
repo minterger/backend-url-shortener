@@ -3,6 +3,7 @@ const {
   register,
   login,
   getUser,
+  userToPremium,
   // updateUser,
   // deleteUser,
 } = require("../controllers/auth.controller");
@@ -15,5 +16,7 @@ route.post("/register", register);
 route.post("/login", login);
 
 route.get("/", isAuth, getUser);
+
+route.post("/premium/:email", userToPremium);
 
 module.exports = route;
