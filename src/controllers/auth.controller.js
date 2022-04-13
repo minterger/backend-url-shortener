@@ -112,15 +112,22 @@ authCtrl.getUser = async (req, res) => {
 };
 
 authCtrl.userToPremium = async (req, res) => {
-  const id = req.userId;
+  const { email } = req.params;
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
         ok: false,
         msg: "User not found",
+      });
+    }
+
+    if (user.premium) {
+      return res.status(400).json({
+        ok: false,
+        msg: "User already premium",
       });
     }
 
