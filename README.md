@@ -6,7 +6,7 @@ Api for url shortener app
 
 Install dependencies
 
-`npm install`
+`npm install` or `pnpm install`
 
 Environments.
 
@@ -15,10 +15,11 @@ MONGO_URI = mongodb://localhost
 PORT = 3000
 SECRET_KEY = "secretkey"
 ```
+
 Run in dev mode
 
-`npm run dev`
+`npm run dev` or `pnpm dev`
 
 Run in production
 
-`npm start`
+`npm start` or `pnpm start`
