@@ -16,6 +16,10 @@ const urlSchema = new Schema(
       type: Number,
       default: 0,
     },
+    maxClicks: {
+      type: Number,
+      default: 500,
+    },
     ownerUsers: [
       {
         type: Types.ObjectId,

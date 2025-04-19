@@ -71,7 +71,7 @@ urlCtrl.goUrl = async (req, res) => {
     }
 
     url.clicks++;
-    if (url.clicks > 500) {
+    if (url.clicks > url.maxClicks && !!url.maxClicks) {
       await url.remove();
       return res.status(404).json({
         ok: false,
@@ -90,7 +90,7 @@ urlCtrl.goUrl = async (req, res) => {
 };
 
 urlCtrl.postUrl = async (req, res) => {
-  const { longUrl, customId } = req.body;
+  const { longUrl, customId, clicks } = req.body;
 
   if (!validUrl.isUri(longUrl)) {
     return res.status(400).json({
@@ -141,6 +141,10 @@ urlCtrl.postUrl = async (req, res) => {
     const newUrl = new Url({
       longUrl,
     });
+
+    if (user.premium && (clicks || clicks === 0)) {
+      newUrl.maxClicks = clicks;
+    }
 
     if (id) {
       const urlId = await Url.findById(id);
